@@ -780,7 +780,7 @@
 
       /* ===== Flow: focus card on tinted bg ===== */
       .stage:has(#screen-flow.active) { background:linear-gradient(180deg, var(--ink-50) 0%, #e8eef6 100%); }
-      #screen-flow {
+      #screen-flow.active {
         padding:48px 24px;
         min-height:100vh; min-height:100dvh;
         display:flex; align-items:flex-start; justify-content:center;
@@ -807,14 +807,14 @@
         border-top:0;
       }
       /* Wrap header+host together visually */
-      #screen-flow {
+      #screen-flow.active {
         --flow-card-max:600px;
       }
       #screen-flow .flow-header,
       #screen-flow #question-host {
         width:100%; max-width:var(--flow-card-max);
       }
-      #screen-flow {
+      #screen-flow.active {
         flex-direction:column;
         align-items:center;
       }
@@ -823,7 +823,7 @@
       }
 
       /* ===== Result: 2-col layout ===== */
-      #screen-result {
+      #screen-result.active {
         display:grid;
         grid-template-columns:1.1fr 1fr;
         min-height:100vh; min-height:100dvh;
@@ -862,7 +862,7 @@
 
     /* --- Wide desktop (>= 1400px) — small breathing-room polish --- */
     @media (min-width:1400px) {
-      .hero { padding:120px 80px 128px; gap:96px; max-width:1400px; margin:0 auto; }
+      .hero { padding:120px max(80px, calc((100% - 1240px) / 2)) 128px; gap:96px; }
       .chrome { padding:24px 80px; max-width:1400px; margin:0 auto; }
       .section { padding:104px 80px; max-width:1400px; margin:0 auto; }
       .cta-row { padding:48px 80px; }
