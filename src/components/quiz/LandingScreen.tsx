@@ -11,7 +11,9 @@ type TimeLeft = {
   mins: number;
 };
 
-const DEADLINE = new Date('2026-06-15T23:59:59-05:00');
+const DEADLINE = new Date('2026-08-23T23:59:59-05:00');
+// Cohort size shown across the landing — confirm against the real convocatoria.
+const COHORT_SIZE = 50;
 
 function getTimeLeft(): TimeLeft {
   const now = Date.now();
@@ -56,7 +58,7 @@ export function LandingScreen({ onStart }: Props) {
           <div className="meta-card">
             <div className="k">Cupos disponibles</div>
             {/* TODO: cohort-size placeholder — confirm with chapter before each cycle */}
-            <div className="v">30 <small>cupos</small></div>
+            <div className="v">{COHORT_SIZE} <small>cupos</small></div>
           </div>
         </div>
       </div>
@@ -70,7 +72,7 @@ export function LandingScreen({ onStart }: Props) {
         </button>
         <div className="scarcity">
           <span className="live"></span>
-          <span>Cupos limitados · Solo 30 seleccionados</span>
+          <span>Cupos limitados · Solo {COHORT_SIZE} seleccionados</span>
         </div>
       </div>
 
@@ -124,7 +126,7 @@ export function LandingScreen({ onStart }: Props) {
         </button>
         <div className="scarcity">
           <span className="live"></span>
-          <span>Cupos limitados · Solo 30 seleccionados</span>
+          <span>Cupos limitados · Solo {COHORT_SIZE} seleccionados</span>
         </div>
       </div>
 
