@@ -15,6 +15,8 @@ type ResultData = {
   whatsapp: string;
   code: string;
   score: number;
+  mensaje?: string;
+  comiteSugerido?: string;
 };
 
 function generateCode(): string {
@@ -41,13 +43,14 @@ function App() {
       return;
     }
 
-    // TODO(M3): AI evaluation hook
     setResultData({
       name: answers.name,
       email: answers.contact.email,
       whatsapp: answers.contact.whatsapp,
       code: generateCode(),
       score: 87, // TODO(M4): replace with real score
+      mensaje: result.mensaje,
+      comiteSugerido: result.comiteSugerido,
     });
     setIsSubmitting(false);
   }

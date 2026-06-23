@@ -49,6 +49,12 @@ const INTEREST_NOTION: Record<InterestValue, string[]> = {
 export function mapAnswersToNotionPage(
   answers: QuizAnswers,
   databaseId: string,
+  aiAnalysis?: {
+    mensaje?: string
+    comiteSugerido?: string
+    lineaSugerida?: string[]
+    resumenRRHH?: string
+  }
 ): CreatePageParameters {
   const isUtp = answers.contact.email.toLowerCase().endsWith('utp.edu.pe');
 
@@ -122,14 +128,105 @@ export function mapAnswersToNotionPage(
         ],
       },
     },
-    {
-      object: 'block',
-      type: 'heading_2',
-      heading_2: {
-        rich_text: [{ type: 'text', text: { content: 'Análisis IA (pendiente)' } }],
-      },
-    },
-    // TODO(M3): fill AI analysis into page body
+    ...(answers.followUp
+      ? [
+          {
+            object: 'block' as const,
+            type: 'heading_2' as const,
+            heading_2: {
+              rich_text: [{ type: 'text' as const, text: { content: 'Pregunta personalizada' } }],
+            },
+          },
+          {
+            object: 'block' as const,
+            type: 'paragraph' as const,
+            paragraph: {
+              rich_text: [
+                { type: 'text' as const, text: { content: `P: ${answers.followUp.question}` } },
+              ],
+            },
+          },
+          {
+            object: 'block' as const,
+            type: 'paragraph' as const,
+            paragraph: {
+              rich_text: [
+                { type: 'text' as const, text: { content: `R: ${answers.followUp.answer}` } },
+              ],
+            },
+          },
+        ]
+      : []),
+    ...(aiAnalysis
+      ? [
+          {
+            object: 'block' as const,
+            type: 'heading_2' as const,
+            heading_2: {
+              rich_text: [{ type: 'text' as const, text: { content: 'Análisis IA' } }],
+            },
+          },
+          ...(aiAnalysis.resumenRRHH
+            ? [
+                {
+                  object: 'block' as const,
+                  type: 'paragraph' as const,
+                  paragraph: {
+                    rich_text: [
+                      { type: 'text' as const, text: { content: aiAnalysis.resumenRRHH } },
+                    ],
+                  },
+                },
+              ]
+            : []),
+          ...(aiAnalysis.comiteSugerido
+            ? [
+                {
+                  object: 'block' as const,
+                  type: 'paragraph' as const,
+                  paragraph: {
+                    rich_text: [
+                      {
+                        type: 'text' as const,
+                        text: {
+                          content: `Comité sugerido: ${aiAnalysis.comiteSugerido}`,
+                        },
+                      },
+                    ],
+                  },
+                },
+              ]
+            : []),
+          ...((aiAnalysis.lineaSugerida ?? []).length > 0
+            ? [
+                {
+                  object: 'block' as const,
+                  type: 'paragraph' as const,
+                  paragraph: {
+                    rich_text: [
+                      {
+                        type: 'text' as const,
+                        text: {
+                          content: `Líneas sugeridas: ${aiAnalysis.lineaSugerida!.join(', ')}`,
+                        },
+                      },
+                    ],
+                  },
+                },
+              ]
+            : []),
+        ]
+      : [
+          {
+            object: 'block' as const,
+            type: 'heading_2' as const,
+            heading_2: {
+              rich_text: [
+                { type: 'text' as const, text: { content: 'Análisis IA (pendiente)' } },
+              ],
+            },
+          },
+        ]),
   ];
 
   return {

@@ -102,9 +102,19 @@ export const QUESTIONS: readonly QuestionConfig[] = [
     validate: (answers) => validateMotivation(answers.motivation ?? ''),
   },
   {
+    id: 'followUp',
+    kind: 'textarea' as const,
+    qn: '06 · Pregunta personalizada',
+    title: '',
+    hint: 'Cuéntanos con detalle (mínimo 20 caracteres)',
+    aiLine: 'Sara IA está leyendo tu respuesta…',
+    validate: (answers: Partial<QuizAnswers>) =>
+      !!(answers.followUp?.answer && answers.followUp.answer.trim().length >= 20),
+  },
+  {
     id: 'availability',
     kind: 'choice',
-    qn: '06 · El compromiso',
+    qn: '07 · El compromiso',
     title: '¿Cuántas horas a la semana puedes dedicarle?',
     hint: 'Sé honesto. Preferimos 4h consistentes que 10h irregulares.',
     options: [
@@ -122,7 +132,7 @@ export const QUESTIONS: readonly QuestionConfig[] = [
   {
     id: 'contact',
     kind: 'contact',
-    qn: '07 · Cómo te ubicamos',
+    qn: '08 · Cómo te ubicamos',
     title: '¿Dónde te contacta RRHH?',
     hint: 'Si pasas el filtro, te escribimos en menos de 48h por WhatsApp...',
     aiLine: 'Sara IA verifica que tus datos de contacto estén completos.',

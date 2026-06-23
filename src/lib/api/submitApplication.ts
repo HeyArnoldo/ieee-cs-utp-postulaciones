@@ -1,7 +1,14 @@
 import type { QuizAnswers } from '@/lib/quiz/schema';
 
 export type SubmitResult =
-  | { ok: true; pageId: string }
+  | {
+      ok: true;
+      pageId: string;
+      mensaje?: string;
+      comiteSugerido?: string;
+      lineaSugerida?: string[];
+      fallback?: boolean;
+    }
   | { ok: false; error: string };
 
 export async function submitApplication(answers: QuizAnswers): Promise<SubmitResult> {

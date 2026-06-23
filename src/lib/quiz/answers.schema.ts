@@ -5,6 +5,13 @@ export const ContactAnswerSchema = z.object({
   whatsapp: z.string().regex(/^9\d{8}$/, 'Must be 9 digits starting with 9'),
 });
 
+export const FollowUpSchema = z.object({
+  question: z.string().min(1),
+  answer: z.string().min(1),
+});
+
+export type FollowUpInput = z.infer<typeof FollowUpSchema>;
+
 export const QuizAnswersSchema = z.object({
   name: z.string().min(1),
   career: z.enum(['sistemas', 'software', 'data', 'electronica', 'otra']),
@@ -13,6 +20,7 @@ export const QuizAnswersSchema = z.object({
   motivation: z.string().min(1),
   availability: z.enum(['2-4', '5-8', '9-12', '13+']),
   contact: ContactAnswerSchema,
+  followUp: FollowUpSchema.optional(),
 });
 
 export type QuizAnswersInput = z.input<typeof QuizAnswersSchema>;
