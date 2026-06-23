@@ -59,33 +59,27 @@ function App() {
     setScreen('result');
   }
 
-  if (screen === 'landing') {
-    return <LandingScreen onStart={() => setScreen('flow')} />;
-  }
-
-  if (screen === 'flow') {
-    return (
-      <>
+  return (
+    <div className="stage">
+      <section id="screen-landing" className={`screen${screen === 'landing' ? ' active' : ''}`}>
+        <LandingScreen onStart={() => setScreen('flow')} />
+      </section>
+      <section id="screen-flow" className={`screen${screen === 'flow' ? ' active' : ''}`}>
         {submitError && (
-          <div role="alert" className="fixed top-0 inset-x-0 z-50 bg-red-600 text-white text-sm text-center px-4 py-2">
+          <div role="alert" style={{ background: '#dc2626', color: '#fff', fontSize: '14px', textAlign: 'center', padding: '8px 16px' }}>
             {submitError}
           </div>
         )}
         <QuizFlow onSubmit={handleSubmit} />
-      </>
-    );
-  }
-
-  if (screen === 'evaluating') {
-    // isSubmitting guards against the animation finishing before the API responds
-    return <EvaluatingScreen onDone={isSubmitting ? () => undefined : handleEvaluatingDone} />;
-  }
-
-  if (screen === 'result' && resultData) {
-    return <ResultScreen result={resultData} />;
-  }
-
-  return null;
+      </section>
+      <section id="screen-evaluating" className={`screen${screen === 'evaluating' ? ' active' : ''}`}>
+        <EvaluatingScreen onDone={isSubmitting ? () => undefined : handleEvaluatingDone} />
+      </section>
+      <section id="screen-result" className={`screen${screen === 'result' ? ' active' : ''}`}>
+        {resultData && <ResultScreen result={resultData} />}
+      </section>
+    </div>
+  );
 }
 
 export default App;
