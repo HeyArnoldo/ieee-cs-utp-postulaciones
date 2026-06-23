@@ -14,8 +14,10 @@ type Props = {
 };
 
 export function QuizFlow({ onSubmit }: Props) {
-  const { step, answers, setAnswer, next, back, canAdvance, isLastStep, progress } = useQuizFlow();
+  const { step, answers, setAnswer, next, back, canAdvance, isLastStep } = useQuizFlow();
   const question = QUESTIONS[step];
+  const isFirst = step === 0;
+  const isDynamicStep = question.id === 'followUp';
 
   function handleNext() {
     if (isLastStep) {
@@ -28,96 +30,69 @@ export function QuizFlow({ onSubmit }: Props) {
   const currentValue = answers[question.id];
 
   return (
-    <div className="min-h-screen bg-[#f7f8fa] flex flex-col">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-white border-b border-[#eef0f3] px-4 py-3">
-        <div className="max-w-lg mx-auto space-y-2">
-          <div className="flex items-center justify-between">
-            <img src="/assets/logo-horizontal.svg" alt="IEEE CS UTP" className="h-6" />
-            <span className="text-xs text-[#4a5058]">
-              {step === 0 ? 'Sara IA está lista para evaluar…' : question.aiLine}
-            </span>
-          </div>
-          <ProgressBar progress={progress} current={step + 1} total={QUESTIONS.length} />
+    <>
+      <div className="flow-header">
+        <button className="flow-back" onClick={back} disabled={isFirst}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 13 5 8l5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Volver
+        </button>
+        <ProgressBar current={step + 1} total={QUESTIONS.length} />
+        <div className="ai-status">
+          <span className="ai-dot"><i></i><i></i><i></i></span>
+          <span>{step === 0 ? 'Sara IA está lista para evaluar…' : question.aiLine}</span>
         </div>
       </div>
-
-      {/* Content */}
-      <div className="flex-1 flex items-start justify-center px-4 py-8">
-        <div className="w-full max-w-lg bg-white rounded-2xl shadow-sm border border-[#eef0f3] p-6 space-y-6">
-          <div className="space-y-1">
-            <p className="text-xs font-medium text-[#FFA300] uppercase tracking-widest">{question.qn}</p>
-            {question.title && (
-              <h2 className="text-xl font-bold text-[#0a0d10] font-['Montserrat',system-ui,sans-serif]">{question.title}</h2>
+      <div id="question-host">
+        {question.kind === 'choice' && (
+          <ChoiceQuestion
+            question={question}
+            selected={(currentValue as string) ?? ''}
+            onSelect={(v) => setAnswer({ [question.id]: v } as Partial<QuizAnswers>)}
+          />
+        )}
+        {question.kind === 'text' && (
+          <TextQuestion
+            question={question}
+            value={(currentValue as string) ?? ''}
+            onChange={(v) => setAnswer({ [question.id]: v } as Partial<QuizAnswers>)}
+          />
+        )}
+        {question.kind === 'textarea' && !isDynamicStep && (
+          <TextareaQuestion
+            question={question}
+            value={(currentValue as string) ?? ''}
+            onChange={(v) => setAnswer({ [question.id]: v } as Partial<QuizAnswers>)}
+          />
+        )}
+        {isDynamicStep && (
+          <DynamicQuestion
+            answers={answers}
+            onAnswer={(value, fetchedQuestion) => {
+              setAnswer({ followUp: { question: fetchedQuestion, answer: value } });
+            }}
+          />
+        )}
+        {question.kind === 'contact' && (
+          <ContactQuestion
+            question={question}
+            value={(currentValue as ContactAnswer) ?? { email: '', whatsapp: '' }}
+            onChange={(v) => setAnswer({ contact: v })}
+          />
+        )}
+        <div className="qfoot">
+          <button className="btn btn-secondary" onClick={back} disabled={isFirst}>←</button>
+          <button className="btn btn-primary" onClick={handleNext} disabled={!canAdvance}>
+            {isLastStep ? 'Ver mi resultado' : 'Siguiente'}
+            {!isLastStep && (
+              <svg className="arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M3.75 9h10.5M9.75 4.5 14.25 9l-4.5 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             )}
-            <p className="text-sm text-[#4a5058]">{question.hint}</p>
-          </div>
-
-          {question.kind === 'choice' && (
-            <ChoiceQuestion
-              question={question}
-              selected={(currentValue as string) ?? ''}
-              onSelect={(v) => setAnswer({ [question.id]: v } as Partial<QuizAnswers>)}
-            />
-          )}
-          {question.kind === 'text' && (
-            <TextQuestion
-              question={question}
-              value={(currentValue as string) ?? ''}
-              onChange={(v) => setAnswer({ [question.id]: v } as Partial<QuizAnswers>)}
-            />
-          )}
-          {question.kind === 'textarea' && question.id !== 'followUp' && (
-            <TextareaQuestion
-              question={question}
-              value={(currentValue as string) ?? ''}
-              onChange={(v) => setAnswer({ [question.id]: v } as Partial<QuizAnswers>)}
-            />
-          )}
-          {question.id === 'followUp' && (
-            <DynamicQuestion
-              answers={answers}
-              onAnswer={(value, fetchedQuestion) => {
-                setAnswer({ followUp: { question: fetchedQuestion, answer: value } });
-              }}
-            />
-          )}
-          {question.kind === 'contact' && (
-            <ContactQuestion
-              question={question}
-              value={(currentValue as ContactAnswer) ?? { email: '', whatsapp: '' }}
-              onChange={(v) => setAnswer({ contact: v })}
-            />
-          )}
-
-          {/* Actions */}
-          <div className="flex items-center justify-between pt-2">
-            <button
-              type="button"
-              onClick={back}
-              disabled={step === 0}
-              className="text-sm text-[#4a5058] hover:text-[#1f242b] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
-              ← Anterior
-            </button>
-            <button
-              type="button"
-              onClick={handleNext}
-              disabled={!canAdvance}
-              className="bg-[#FFA300] hover:bg-[#cc8200] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold px-6 py-2.5 rounded-xl transition-all text-sm"
-            >
-              {isLastStep ? 'Enviar postulación →' : 'Siguiente →'}
-            </button>
-          </div>
+          </button>
         </div>
       </div>
-
-      {/* Sticky footer */}
-      <div className="sticky bottom-0 bg-white/80 backdrop-blur border-t border-[#eef0f3] px-4 py-2">
-        <p className="text-center text-xs text-[#b8bcc2]">
-          Sara IA · Evaluación en tiempo real · Resultado en 48h
-        </p>
-      </div>
-    </div>
+    </>
   );
 }

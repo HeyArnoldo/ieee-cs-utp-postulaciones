@@ -1,23 +1,21 @@
 // src/components/quiz/ProgressBar.tsx
 
 type Props = {
-  progress: number;
+  progress?: number;
   current: number;
   total: number;
 };
 
-export function ProgressBar({ progress, current, total }: Props) {
+export function ProgressBar({ current, total }: Props) {
+  const pct = Math.round((current / total) * 100);
   return (
-    <div className="flex items-center gap-3">
-      <div className="flex-1 h-2 rounded-full bg-[#eef0f3] overflow-hidden">
-        <div
-          className="h-full rounded-full bg-gradient-to-r from-[#FFA300] to-[#cc8200] transition-all duration-500"
-          style={{ width: `${progress * 100}%` }}
-        />
+    <div className="progress-shell">
+      <div className="progress-bar">
+        <div className="progress-fill" style={{ width: `${pct}%` }}></div>
       </div>
-      <span className="text-xs font-medium text-[#4a5058] whitespace-nowrap">
-        {current}/{total}
-      </span>
+      <div className="progress-label">
+        <span className="cur">{current}</span>/{total}
+      </div>
     </div>
   );
 }

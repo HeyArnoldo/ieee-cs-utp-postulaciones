@@ -5,22 +5,37 @@ type Props = {
   onDone: () => void;
 };
 
-const STEPS = [
-  { label: 'Analizando autenticidad…', delay: 0 },
-  { label: 'Evaluando perfil técnico…', delay: 900 },
-  { label: 'Calculando compatibilidad…', delay: 1800 },
-  { label: 'Revisando motivación…', delay: 2700 },
-  { label: 'Generando resultado…', delay: 3600 },
+const checks = [
+  'Verificando datos básicos',
+  'Analizando motivación y fit cultural',
+  'Evaluando habilidades técnicas',
+  'Consultando perfil de liderazgo',
+  'Generando recomendación personalizada',
+];
+
+const lines = [
+  'Cruzando tus respuestas con el perfil del capítulo…',
+  'Comparando con 247 postulaciones anteriores…',
+  'Analizando coherencia entre motivación y disponibilidad…',
+  'Calculando match técnico con áreas activas del capítulo…',
+  'Listo. Preparando tu resultado…',
 ];
 
 export function EvaluatingScreen({ onDone }: Props) {
-  const [activeStep, setActiveStep] = useState(0);
+  const [shownChecks, setShownChecks] = useState<number[]>([]);
+  const [doneChecks, setDoneChecks] = useState<number[]>([]);
+  const [currentLine, setCurrentLine] = useState(lines[0]);
 
   useEffect(() => {
     const timers: ReturnType<typeof setTimeout>[] = [];
 
-    STEPS.forEach((s, i) => {
-      timers.push(setTimeout(() => setActiveStep(i), s.delay));
+    checks.forEach((_, i) => {
+      timers.push(setTimeout(() => setShownChecks(prev => [...prev, i]), 200 + i * 100));
+      timers.push(setTimeout(() => setDoneChecks(prev => [...prev, i]), 700 + i * 700));
+    });
+
+    lines.forEach((line, i) => {
+      timers.push(setTimeout(() => setCurrentLine(line), 200 + i * 800));
     });
 
     timers.push(setTimeout(onDone, 4800));
@@ -29,38 +44,20 @@ export function EvaluatingScreen({ onDone }: Props) {
   }, [onDone]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#001530] via-[#002855] to-[#00629B] flex items-center justify-center px-4">
-      <div className="text-center space-y-8 max-w-sm w-full">
-        {/* Orb */}
-        <div className="relative mx-auto w-32 h-32">
-          <div className="absolute inset-0 rounded-full bg-[#00B5E2]/20 animate-ping" />
-          <div className="absolute inset-2 rounded-full bg-[#00B5E2]/30 animate-pulse" />
-          <div className="absolute inset-4 rounded-full bg-[#00629B] flex items-center justify-center">
-            <span className="text-3xl">🧠</span>
+    <div className="evaluating">
+      <div className="ai-orb"></div>
+      <div className="eval-status">Sara IA · Evaluando</div>
+      <div className="eval-line">{currentLine}</div>
+      <div className="eval-checks">
+        {checks.map((check, i) => (
+          <div
+            key={i}
+            className={`eval-check${shownChecks.includes(i) ? ' shown' : ''}${doneChecks.includes(i) ? ' done' : ''}`}
+          >
+            <span className="ico"></span>
+            <span>{check}</span>
           </div>
-        </div>
-
-        <div className="space-y-2">
-          <h2 className="text-xl font-bold text-white font-['Montserrat',system-ui,sans-serif]">
-            Sara IA está evaluando…
-          </h2>
-          <p className="text-[#C8F1FB] text-sm">Procesando tu postulación en tiempo real</p>
-        </div>
-
-        {/* Steps */}
-        <div className="space-y-3">
-          {STEPS.map((s, i) => (
-            <div
-              key={s.label}
-              className={`flex items-center gap-3 transition-opacity duration-500 ${i <= activeStep ? 'opacity-100' : 'opacity-30'}`}
-            >
-              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${i < activeStep ? 'bg-[#FFA300]' : i === activeStep ? 'bg-[#00B5E2] animate-pulse' : 'bg-white/20'}`}>
-                {i < activeStep ? '✓' : ''}
-              </div>
-              <span className="text-sm text-white text-left">{s.label}</span>
-            </div>
-          ))}
-        </div>
+        ))}
       </div>
     </div>
   );

@@ -9,12 +9,18 @@ type Props = {
 
 export function TextQuestion({ question, value, onChange }: Props) {
   return (
-    <input
-      type="text"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={question.placeholder}
-      className="w-full rounded-xl border-2 border-[#d8dbe0] bg-white px-4 py-3 text-[#0a0d10] placeholder:text-[#b8bcc2] focus:border-[#FFA300] focus:outline-none transition-colors"
-    />
+    <div className="question">
+      <div className="qn">{question.qn}</div>
+      <h2>{question.title}</h2>
+      {question.hint && <p className="hint">{question.hint}</p>}
+      <input
+        className="field"
+        type="text"
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={question.placeholder || ''}
+        autoFocus
+      />
+    </div>
   );
 }
