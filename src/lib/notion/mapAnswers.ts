@@ -1,11 +1,29 @@
 import type { CreatePageParameters } from '@notionhq/client/build/src/api-endpoints';
 import type { QuizAnswers, CareerValue, InterestValue, CycleValue, AvailabilityValue } from '@/lib/quiz/schema';
 
+// Human-readable labels for each career value
 export const CAREER_LABELS: Record<CareerValue, string> = {
+  sistemas: 'Ing. de Sistemas e Informática',
+  software: 'Ing. de Software',
+  data: 'Ing. en Ciencia de Datos',
+  electronica: 'Ing. Electrónica / Telecomunicaciones',
+  industrial: 'Ing. Industrial',
+  mecatronica: 'Ing. Mecatrónica',
+  psicologia: 'Psicología',
+  comunicaciones: 'Comunicaciones',
+  otra: 'Otra',
+};
+
+// Notion SELECT values (must match existing Notion options)
+const CAREER_NOTION: Record<CareerValue, string> = {
   sistemas: 'Ing. de Sistemas e Informática',
   software: 'Ing. de Software',
   data: 'Ciencias de la Computación',
   electronica: 'Ing. Electrónica',
+  industrial: 'Ing. Industrial',
+  mecatronica: 'Ing. Mecatrónica',
+  psicologia: 'Otra',
+  comunicaciones: 'Otra',
   otra: 'Otra',
 };
 
@@ -25,8 +43,6 @@ export const AVAILABILITY_LABELS: Record<AvailabilityValue, string> = {
   '9-12': '9-12',
   '13+': '13+',
 };
-
-const CAREER_NOTION: Record<CareerValue, string> = CAREER_LABELS;
 
 const CYCLE_NUMBER: Record<CycleValue, number> = {
   '1-3': 1,
@@ -57,6 +73,12 @@ export function mapAnswersToNotionPage(
   }
 ): CreatePageParameters {
   const isUtp = answers.contact.email.toLowerCase().endsWith('utp.edu.pe');
+  const isDocente = answers.applicantType === 'docente';
+
+  // Compute the real human-readable career label
+  const careerLabel = answers.career === 'otra'
+    ? (answers.careerOther ?? 'Otra')
+    : CAREER_LABELS[answers.career];
 
   const properties: CreatePageParameters['properties'] = {
     'Nombres y Apellidos': {
@@ -64,9 +86,6 @@ export function mapAnswersToNotionPage(
     },
     Carrera: {
       select: { name: CAREER_NOTION[answers.career] },
-    },
-    Ciclo: {
-      number: CYCLE_NUMBER[answers.cycle],
     },
     WhatsApp: {
       phone_number: `+51 ${answers.contact.whatsapp}`,
@@ -76,13 +95,35 @@ export function mapAnswersToNotionPage(
     },
   };
 
+  // Ciclo: only for estudiantes
+  if (!isDocente && answers.cycle !== undefined) {
+    properties['Ciclo'] = { number: CYCLE_NUMBER[answers.cycle] };
+  }
+
   if (isUtp) {
     properties['Correo institucional UTP'] = { email: answers.contact.email };
   } else {
     properties['Correo personal'] = { email: answers.contact.email };
   }
 
+  // Prominent lines near the top of the body
+  const tipoLine = `Tipo de postulante: ${isDocente ? 'Docente' : 'Estudiante'}`;
+
   const children: CreatePageParameters['children'] = [
+    {
+      object: 'block',
+      type: 'paragraph',
+      paragraph: {
+        rich_text: [{ type: 'text', text: { content: tipoLine } }],
+      },
+    },
+    {
+      object: 'block',
+      type: 'paragraph',
+      paragraph: {
+        rich_text: [{ type: 'text', text: { content: `Carrera declarada: ${careerLabel}` } }],
+      },
+    },
     {
       object: 'block',
       type: 'paragraph',
@@ -112,18 +153,6 @@ export function mapAnswersToNotionPage(
           {
             type: 'text',
             text: { content: `Interés declarado: ${INTEREST_LABELS[answers.interest]}` },
-          },
-        ],
-      },
-    },
-    {
-      object: 'block',
-      type: 'paragraph',
-      paragraph: {
-        rich_text: [
-          {
-            type: 'text',
-            text: { content: `Carrera declarada: ${CAREER_LABELS[answers.career]}` },
           },
         ],
       },

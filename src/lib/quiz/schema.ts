@@ -1,6 +1,7 @@
 // src/lib/quiz/schema.ts
 
-export type CareerValue = 'sistemas' | 'software' | 'data' | 'electronica' | 'otra';
+export type ApplicantTypeValue = 'estudiante' | 'docente';
+export type CareerValue = 'sistemas' | 'software' | 'data' | 'electronica' | 'industrial' | 'mecatronica' | 'psicologia' | 'comunicaciones' | 'otra';
 export type CycleValue = '1-3' | '4-6' | '7-9' | '10+';
 export type InterestValue = 'web' | 'ai' | 'cyber' | 'cloud' | 'game' | 'iot' | 'explore';
 export type AvailabilityValue = '2-4' | '5-8' | '9-12' | '13+';
@@ -12,8 +13,10 @@ export type ContactAnswer = {
 
 export type QuizAnswers = {
   name: string;
+  applicantType: ApplicantTypeValue;
   career: CareerValue;
-  cycle: CycleValue;
+  cycle?: CycleValue;
+  careerOther?: string;
   interest: InterestValue;
   motivation: string;
   availability: AvailabilityValue;

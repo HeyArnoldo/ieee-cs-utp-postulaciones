@@ -1,13 +1,13 @@
 // src/components/quiz/QuizFlow.tsx
 import type { QuizAnswers, ContactAnswer } from '@/lib/quiz/schema';
 import { useQuizFlow } from '@/lib/quiz/useQuizFlow';
-import { QUESTIONS } from '@/lib/quiz/questions';
 import { ProgressBar } from './ProgressBar';
 import { ChoiceQuestion } from './ChoiceQuestion';
 import { TextQuestion } from './TextQuestion';
 import { TextareaQuestion } from './TextareaQuestion';
 import { ContactQuestion } from './ContactQuestion';
 import { DynamicQuestion } from './DynamicQuestion';
+import { CareerQuestion } from './CareerQuestion';
 
 type Props = {
   onSubmit: (answers: QuizAnswers) => Promise<void>;
@@ -15,8 +15,8 @@ type Props = {
 };
 
 export function QuizFlow({ onSubmit, submitting = false }: Props) {
-  const { step, answers, setAnswer, next, back, canAdvance, isLastStep } = useQuizFlow();
-  const question = QUESTIONS[step];
+  const { step, answers, activeQuestions, setAnswer, next, back, canAdvance, isLastStep } = useQuizFlow();
+  const question = activeQuestions[step];
   const isFirst = step === 0;
   const isDynamicStep = question.id === 'followUp';
 
@@ -28,7 +28,7 @@ export function QuizFlow({ onSubmit, submitting = false }: Props) {
     }
   }
 
-  const currentValue = answers[question.id];
+  const currentValue = answers[question.id as keyof typeof answers];
 
   return (
     <>
@@ -39,14 +39,23 @@ export function QuizFlow({ onSubmit, submitting = false }: Props) {
           </svg>
           Volver
         </button>
-        <ProgressBar current={step + 1} total={QUESTIONS.length} />
+        <ProgressBar current={step + 1} total={activeQuestions.length} />
         <div className="ai-status">
           <span className="ai-dot"><i></i><i></i><i></i></span>
           <span>{step === 0 ? 'Sara IA está lista para evaluar…' : question.aiLine}</span>
         </div>
       </div>
       <div id="question-host">
-        {question.kind === 'choice' && (
+        {question.id === 'career' && (
+          <CareerQuestion
+            question={question}
+            answer={(answers.career as string) ?? ''}
+            careerOther={answers.careerOther ?? ''}
+            onAnswer={(v) => setAnswer({ career: v as QuizAnswers['career'] })}
+            onCareerOther={(text) => setAnswer({ careerOther: text })}
+          />
+        )}
+        {question.kind === 'choice' && question.id !== 'career' && (
           <ChoiceQuestion
             question={question}
             selected={(currentValue as string) ?? ''}

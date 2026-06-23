@@ -36,6 +36,8 @@ export interface FollowUpPromptInput {
   motivation: string
   interest: string
   career: string
+  applicantType: 'estudiante' | 'docente'
+  careerLabel?: string
 }
 
 export interface EvaluationPromptInput {
@@ -43,7 +45,9 @@ export interface EvaluationPromptInput {
   motivation: string
   interest: string
   career: string
+  careerLabel: string
   availability: string
+  applicantType: 'estudiante' | 'docente'
   followUp: { question: string; answer: string }
 }
 
@@ -57,19 +61,28 @@ export interface EvaluationResult {
 export function buildFollowUpPrompt(
   input: FollowUpPromptInput,
 ): Array<{ role: 'system' | 'user'; content: string }> {
-  return [
-    {
-      role: 'system',
-      content: `Eres Sara, asistente de selección del IEEE Computer Society UTP (Perú).
+  const isDocente = input.applicantType === 'docente';
+  const systemContent = isDocente
+    ? `Eres Sara, asistente de selección del IEEE Computer Society UTP (Perú).
+Tu tarea es generar UNA sola pregunta corta (máximo 140 caracteres) y personalizada que profundice en la motivación y el encaje del docente postulante con el capítulo.
+La pregunta debe ser cálida, directa y en español neutro peruano. Trata al postulante como profesional y mentor potencial — no hagas referencia a años académicos, materias o contexto estudiantil.
+Responde SOLO con el texto de la pregunta. Sin explicaciones, sin comillas adicionales, sin meta-instrucciones.
+Mantente estrictamente en el tema del capítulo IEEE y la formación técnica. No hagas preguntas off-topic.`
+    : `Eres Sara, asistente de selección del IEEE Computer Society UTP (Perú).
 Tu tarea es generar UNA sola pregunta corta (máximo 140 caracteres) y personalizada que profundice en la motivación y el encaje del postulante con el capítulo.
 La pregunta debe ser cálida, directa y en español neutro peruano.
 Responde SOLO con el texto de la pregunta. Sin explicaciones, sin comillas adicionales, sin meta-instrucciones.
-Mantente estrictamente en el tema del capítulo IEEE y la formación técnica. No hagas preguntas off-topic.`,
-    },
+Mantente estrictamente en el tema del capítulo IEEE y la formación técnica. No hagas preguntas off-topic.`;
+
+  const careerDisplay = input.careerLabel ?? input.career;
+
+  return [
+    { role: 'system', content: systemContent },
     {
       role: 'user',
-      content: `Interés principal: ${input.interest}
-Carrera: ${input.career}
+      content: `Tipo de postulante: ${isDocente ? 'Docente' : 'Estudiante'}
+Interés principal: ${input.interest}
+Carrera / Área: ${careerDisplay}
 Motivación del postulante: "${input.motivation}"`,
     },
   ]
@@ -86,6 +99,9 @@ export function buildEvaluationPrompt(
 ): Array<{ role: 'system' | 'user'; content: string }> {
   const comitesList = [...VALID_COMITES].join(', ')
   const lineasList = [...VALID_LINEAS].join(', ')
+  const isDocente = input.applicantType === 'docente';
+
+  const tipoLabel = isDocente ? 'Docente' : 'Estudiante';
 
   return [
     {
@@ -95,14 +111,15 @@ Analiza la postulación y responde SOLO con un objeto JSON válido con estos cam
 - "mensaje": string — mensaje cálido y personalizado de cierre para el postulante (2-3 oraciones, español neutro, sin puntaje numérico, sin rechazo)
 - "comiteSugerido": string — DEBE ser exactamente uno de: ${comitesList}
 - "lineaSugerida": string[] — subconjunto de: ${lineasList}
-- "resumenRRHH": string — resumen de 2 líneas para el comité de RRHH
+- "resumenRRHH": string — resumen de 2 líneas para el comité de RRHH; incluir "Tipo: ${tipoLabel}"
 
 No incluyas texto fuera del JSON. No uses markdown.`,
     },
     {
       role: 'user',
       content: `Nombre: ${input.name}
-Carrera: ${input.career}
+Tipo: ${tipoLabel}
+Carrera: ${input.careerLabel}
 Interés: ${input.interest}
 Disponibilidad: ${input.availability}
 Motivación: "${input.motivation}"

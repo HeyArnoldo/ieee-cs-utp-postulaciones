@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Client } from '@notionhq/client';
 import OpenAI from 'openai';
 import { QuizAnswersSchema } from '../src/lib/quiz/answers.schema.js';
-import { mapAnswersToNotionPage } from '../src/lib/notion/mapAnswers.js';
+import { mapAnswersToNotionPage, CAREER_LABELS } from '../src/lib/notion/mapAnswers.js';
 import {
   buildEvaluationPrompt,
   parseEvaluationResponse,
@@ -45,11 +45,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   // STEP 2: AI enrichment — best-effort, never blocks the response
   try {
     const openai = new OpenAI({ apiKey: process.env.OPENAI_TOKEN });
+    const careerLabel = parsed.data.career === 'otra'
+      ? (parsed.data.careerOther ?? 'Otra')
+      : CAREER_LABELS[parsed.data.career];
     const messages = buildEvaluationPrompt({
       name: parsed.data.name,
       motivation: parsed.data.motivation,
       interest: parsed.data.interest,
       career: parsed.data.career,
+      careerLabel,
+      applicantType: parsed.data.applicantType,
       availability: parsed.data.availability,
       followUp: parsed.data.followUp ?? { question: '', answer: '' },
     });
