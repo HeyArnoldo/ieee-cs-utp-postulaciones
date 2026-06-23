@@ -1,5 +1,5 @@
 // src/App.tsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { QuizAnswers } from '@/lib/quiz/schema';
 import { submitApplication } from '@/lib/api/submitApplication';
 import { LandingScreen } from '@/components/quiz/LandingScreen';
@@ -26,12 +26,13 @@ function generateCode(): string {
 function App() {
   const [screen, setScreen] = useState<Screen>('landing');
   const [resultData, setResultData] = useState<ResultData | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [evaluationDone, setEvaluationDone] = useState(false);
 
   async function handleSubmit(answers: QuizAnswers): Promise<void> {
-    setIsSubmitting(true);
     setSubmitError(null);
+    setResultData(null);
+    setEvaluationDone(false);
     setScreen('evaluating');
 
     const result = await submitApplication(answers);
@@ -39,7 +40,6 @@ function App() {
     if (!result.ok) {
       setSubmitError(result.error);
       setScreen('flow'); // return to form so user can retry
-      setIsSubmitting(false);
       return;
     }
 
@@ -52,12 +52,15 @@ function App() {
       mensaje: result.mensaje,
       comiteSugerido: result.comiteSugerido,
     });
-    setIsSubmitting(false);
   }
 
-  function handleEvaluatingDone() {
-    setScreen('result');
-  }
+  // Move to the result only once BOTH the evaluating animation has finished
+  // and the application has been saved (handles either order, never blocks).
+  useEffect(() => {
+    if (screen === 'evaluating' && evaluationDone && resultData) {
+      setScreen('result');
+    }
+  }, [screen, evaluationDone, resultData]);
 
   return (
     <div className="stage">
@@ -73,7 +76,8 @@ function App() {
         <QuizFlow onSubmit={handleSubmit} />
       </section>
       <section id="screen-evaluating" className={`screen${screen === 'evaluating' ? ' active' : ''}`}>
-        <EvaluatingScreen onDone={isSubmitting ? () => undefined : handleEvaluatingDone} />
+        {/* Mount ONLY while active — its timer must not fire on the landing screen. */}
+        {screen === 'evaluating' && <EvaluatingScreen onDone={() => setEvaluationDone(true)} />}
       </section>
       <section id="screen-result" className={`screen${screen === 'result' ? ' active' : ''}`}>
         {resultData && <ResultScreen result={resultData} />}
