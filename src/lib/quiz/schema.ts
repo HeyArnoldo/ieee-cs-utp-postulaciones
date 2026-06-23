@@ -18,6 +18,7 @@ export type QuizAnswers = {
   motivation: string;
   availability: AvailabilityValue;
   contact: ContactAnswer;
+  followUp?: { question: string; answer: string };
 };
 
 export function validateName(v: string): boolean {

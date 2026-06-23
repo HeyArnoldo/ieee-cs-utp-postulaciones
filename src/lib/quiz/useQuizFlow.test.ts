@@ -43,10 +43,10 @@ describe('useQuizFlow', () => {
     expect(result.current.step).toBe(0);
   });
 
-  it('isLastStep is true only at step 6', () => {
+  it('isLastStep is true only at step 7', () => {
     const { result } = renderHook(() => useQuizFlow());
     expect(result.current.isLastStep).toBe(false);
-    // advance to step 6 by setting valid answers and calling next
+    // advance through all steps: name→career→cycle→interest→motivation→followUp→availability→contact
     act(() => result.current.setAnswer({ name: 'Ana Pérez' }));
     act(() => result.current.next());
     act(() => result.current.setAnswer({ career: 'software' }));
@@ -57,9 +57,11 @@ describe('useQuizFlow', () => {
     act(() => result.current.next());
     act(() => result.current.setAnswer({ motivation: 'a'.repeat(60) }));
     act(() => result.current.next());
+    act(() => result.current.setAnswer({ followUp: { question: '¿Pregunta?', answer: 'a'.repeat(20) } }));
+    act(() => result.current.next());
     act(() => result.current.setAnswer({ availability: '5-8' }));
     act(() => result.current.next());
-    expect(result.current.step).toBe(6);
+    expect(result.current.step).toBe(7);
     expect(result.current.isLastStep).toBe(true);
   });
 
@@ -68,14 +70,14 @@ describe('useQuizFlow', () => {
     expect(result.current.progress).toBeCloseTo(0);
   });
 
-  it('progress at step 1 is 1/7', () => {
+  it('progress at step 1 is 1/8', () => {
     const { result } = renderHook(() => useQuizFlow());
     act(() => result.current.setAnswer({ name: 'Ana Pérez' }));
     act(() => result.current.next());
-    expect(result.current.progress).toBeCloseTo(1 / 7);
+    expect(result.current.progress).toBeCloseTo(1 / 8);
   });
 
-  it('progress at step 6 is 6/7', () => {
+  it('progress at step 6 is 6/8', () => {
     const { result } = renderHook(() => useQuizFlow());
     act(() => result.current.setAnswer({ name: 'Ana Pérez' }));
     act(() => result.current.next());
@@ -87,8 +89,8 @@ describe('useQuizFlow', () => {
     act(() => result.current.next());
     act(() => result.current.setAnswer({ motivation: 'a'.repeat(60) }));
     act(() => result.current.next());
-    act(() => result.current.setAnswer({ availability: '5-8' }));
+    act(() => result.current.setAnswer({ followUp: { question: '¿Pregunta?', answer: 'a'.repeat(20) } }));
     act(() => result.current.next());
-    expect(result.current.progress).toBeCloseTo(6 / 7);
+    expect(result.current.progress).toBeCloseTo(6 / 8);
   });
 });

@@ -7,6 +7,7 @@ import { ChoiceQuestion } from './ChoiceQuestion';
 import { TextQuestion } from './TextQuestion';
 import { TextareaQuestion } from './TextareaQuestion';
 import { ContactQuestion } from './ContactQuestion';
+import { DynamicQuestion } from './DynamicQuestion';
 
 type Props = {
   onSubmit: (answers: QuizAnswers) => Promise<void>;
@@ -46,7 +47,9 @@ export function QuizFlow({ onSubmit }: Props) {
         <div className="w-full max-w-lg bg-white rounded-2xl shadow-sm border border-[#eef0f3] p-6 space-y-6">
           <div className="space-y-1">
             <p className="text-xs font-medium text-[#FFA300] uppercase tracking-widest">{question.qn}</p>
-            <h2 className="text-xl font-bold text-[#0a0d10] font-['Montserrat',system-ui,sans-serif]">{question.title}</h2>
+            {question.title && (
+              <h2 className="text-xl font-bold text-[#0a0d10] font-['Montserrat',system-ui,sans-serif]">{question.title}</h2>
+            )}
             <p className="text-sm text-[#4a5058]">{question.hint}</p>
           </div>
 
@@ -64,11 +67,19 @@ export function QuizFlow({ onSubmit }: Props) {
               onChange={(v) => setAnswer({ [question.id]: v } as Partial<QuizAnswers>)}
             />
           )}
-          {question.kind === 'textarea' && (
+          {question.kind === 'textarea' && question.id !== 'followUp' && (
             <TextareaQuestion
               question={question}
               value={(currentValue as string) ?? ''}
               onChange={(v) => setAnswer({ [question.id]: v } as Partial<QuizAnswers>)}
+            />
+          )}
+          {question.id === 'followUp' && (
+            <DynamicQuestion
+              answers={answers}
+              onAnswer={(value, fetchedQuestion) => {
+                setAnswer({ followUp: { question: fetchedQuestion, answer: value } });
+              }}
             />
           )}
           {question.kind === 'contact' && (

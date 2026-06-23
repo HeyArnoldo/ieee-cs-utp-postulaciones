@@ -1,5 +1,5 @@
 // src/components/quiz/ResultScreen.tsx
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type ResultProps = {
   name: string;
@@ -7,6 +7,8 @@ type ResultProps = {
   whatsapp: string;
   code: string;
   score: number;
+  mensaje?: string;
+  comiteSugerido?: string;
 };
 
 type Props = {
@@ -15,6 +17,26 @@ type Props = {
 
 const CONFETTI_COLORS = ['#FFA300', '#00B5E2', '#FFFFFF', '#FFB733'];
 const CIRCUMFERENCE = 2 * Math.PI * 60; // ~377
+
+function TypewriterText({ text, speed = 30 }: { text: string; speed?: number }) {
+  const [displayed, setDisplayed] = useState('');
+
+  useEffect(() => {
+    setDisplayed('');
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < text.length) {
+        setDisplayed(text.slice(0, i + 1));
+        i++;
+      } else {
+        clearInterval(interval);
+      }
+    }, speed);
+    return () => clearInterval(interval);
+  }, [text, speed]);
+
+  return <span>{displayed}</span>;
+}
 
 export function ResultScreen({ result }: Props) {
   const confettiRef = useRef<HTMLDivElement>(null);
@@ -56,6 +78,23 @@ export function ResultScreen({ result }: Props) {
             ¡Postulación recibida, {result.name.split(' ')[0]}!
           </h2>
         </div>
+
+        {/* AI mensaje with typewriter */}
+        {result.mensaje && (
+          <div className="bg-[#f0f7ff] rounded-xl p-4 text-left">
+            <p className="text-sm text-[#002855] leading-relaxed">
+              <TypewriterText text={result.mensaje} />
+            </p>
+          </div>
+        )}
+
+        {/* Comité sugerido */}
+        {result.comiteSugerido && (
+          <div className="bg-[#fff8e6] rounded-xl px-4 py-3">
+            <p className="text-xs text-[#4a5058] mb-1">Comité sugerido para ti</p>
+            <p className="font-bold text-[#cc8200] text-sm">{result.comiteSugerido}</p>
+          </div>
+        )}
 
         {/* Score ring */}
         {/* TODO(M4): remove fake gatekeeping score */}
