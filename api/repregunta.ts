@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import OpenAI from 'openai'
-import { buildFollowUpPrompt, parseFollowUpResponse, FALLBACK_FOLLOW_UP_QUESTION } from '../src/lib/ai/prompts'
+import { buildFollowUpPrompt, parseFollowUpResponse, FALLBACK_FOLLOW_UP_QUESTION } from '../src/lib/ai/prompts.js'
 
 const FALLBACK = FALLBACK_FOLLOW_UP_QUESTION
 
@@ -9,7 +9,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ ok: false, error: 'Method not allowed' })
   }
 
-  const { motivation, interest, career } = req.body as {
+  const { motivation, interest, career } = (req.body ?? {}) as {
     motivation?: string
     interest?: string
     career?: string
