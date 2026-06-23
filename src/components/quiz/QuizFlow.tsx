@@ -11,9 +11,10 @@ import { DynamicQuestion } from './DynamicQuestion';
 
 type Props = {
   onSubmit: (answers: QuizAnswers) => Promise<void>;
+  submitting?: boolean;
 };
 
-export function QuizFlow({ onSubmit }: Props) {
+export function QuizFlow({ onSubmit, submitting = false }: Props) {
   const { step, answers, setAnswer, next, back, canAdvance, isLastStep } = useQuizFlow();
   const question = QUESTIONS[step];
   const isFirst = step === 0;
@@ -83,8 +84,8 @@ export function QuizFlow({ onSubmit }: Props) {
         )}
         <div className="qfoot">
           <button className="btn btn-secondary" onClick={back} disabled={isFirst}>←</button>
-          <button className="btn btn-primary" onClick={handleNext} disabled={!canAdvance}>
-            {isLastStep ? 'Ver mi resultado' : 'Siguiente'}
+          <button className="btn btn-primary" onClick={handleNext} disabled={!canAdvance || (isLastStep && submitting)}>
+            {isLastStep && submitting ? 'Enviando…' : isLastStep ? 'Ver mi resultado' : 'Siguiente'}
             {!isLastStep && (
               <svg className="arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
                 <path d="M3.75 9h10.5M9.75 4.5 14.25 9l-4.5 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

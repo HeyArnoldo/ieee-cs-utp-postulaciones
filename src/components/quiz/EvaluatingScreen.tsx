@@ -14,11 +14,10 @@ const checks = [
 ];
 
 const lines = [
-  'Cruzando tus respuestas con el perfil del capítulo…',
-  'Comparando con 247 postulaciones anteriores…',
-  'Analizando coherencia entre motivación y disponibilidad…',
-  'Calculando match técnico con áreas activas del capítulo…',
-  'Listo. Preparando tu resultado…',
+  'Leyendo tus respuestas…',
+  'Analizando tu motivación y tus intereses…',
+  'Identificando tu perfil de voluntario…',
+  'Preparando tu resultado…',
 ];
 
 export function EvaluatingScreen({ onDone }: Props) {

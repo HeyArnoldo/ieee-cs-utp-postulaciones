@@ -1,56 +1,53 @@
-# IEEE CS UTP — Postulaciones 2026
+# IEEE CS UTP — Volunteer Recruitment App
 
-Landing + flow de evaluación + pantalla post-aplicación. Static HTML, sin build, sin backend.
+Conversational quiz that collects applicants, saves to Notion, and uses OpenAI to generate a dynamic follow-up question and a personalized result message.
 
-## Estructura
+## Stack
 
-```
-deploy-vercel/
-├── index.html              ← entrada (landing → flow → resultado)
-├── assets/
-│   ├── logo-horizontal.svg     (lockup oficial IEEE CS UTP, header)
-│   └── logo-stacked-white.png  (lockup stacked, result hero)
-└── vercel.json             ← config Vercel (cache + headers seguridad)
-```
+- **Frontend**: Vite 7 + React 19 + TypeScript + Tailwind v4
+- **Backend**: Vercel serverless functions (`/api`)
+- **Storage**: Notion API (internal integration)
+- **AI**: OpenAI `gpt-4o-mini`
 
-## Deploy en Vercel
+## Local dev
 
-**Opción 1 — drag & drop:**
-1. Andá a [vercel.com/new](https://vercel.com/new)
-2. Arrastra esta carpeta entera al uploader
-3. Framework preset: **Other** (static)
-4. Build/Output: dejá vacío
-5. Deploy → conectá dominio `ieeecsutp.org` en Settings → Domains
-
-**Opción 2 — CLI:**
 ```bash
-npm i -g vercel
-cd deploy-vercel
-vercel --prod
+pnpm install
+cp .env.example .env   # fill in the three env vars below
+pnpm dev               # http://localhost:5173
+pnpm test              # Vitest — all tests must pass
+pnpm build             # type-checks api/ + builds the SPA
 ```
 
-**Opción 3 — git:**
-1. Subí esta carpeta a un repo GitHub
-2. Import desde Vercel apuntando al repo
-3. Root directory: `deploy-vercel/` (si está en subcarpeta)
+## Environment variables
 
-## Dominio
+| Variable | Description |
+|---|---|
+| `NOTION_TOKEN` | Notion internal integration secret |
+| `NOTION_DATABASE_ID` | ID of the target Notion database (from its URL) |
+| `OPENAI_TOKEN` | OpenAI API key (**not** `OPENAI_API_KEY`) |
 
-Configurado para `https://ieeecsutp.org/`. Si cambia, actualizá:
-- `<link rel="canonical">`
-- `<meta property="og:*">` en `index.html`
-- Email `hola@ieeecsutp.org` en el result hero
+Set these in Vercel → Project → Settings → Environment Variables.
 
-## Notas técnicas
+## Notion setup (important — people always miss this)
 
-- Mockup sin backend: el form NO envía a ningún lado. Para producción, conectá el `submit` final a Google Sheets / Supabase / lo que prefieran RRHH.
-- Fonts cargan desde Google Fonts (preconnect). Funciona offline-degraded a system fonts.
-- Mobile-first, responsive hasta 1400px wide.
-- Reduced-motion respetado.
+1. Go to [notion.so/my-integrations](https://www.notion.so/my-integrations) and create an **Internal Integration**.
+2. Copy the **Integration Secret** → `NOTION_TOKEN`.
+3. Open the target database in Notion → `•••` menu → **Connections** → add your integration.
 
-## Iteraciones futuras posibles
+> If you skip step 3 the API returns: *"Could not find database… Make sure the relevant pages and databases are shared with your integration."*
 
-- Sello 80° aniversario IEEE CS (válido solo 2026)
-- Conectar submit a backend real
-- Analytics (Plausible, Vercel Analytics)
-- Test A/B copy del headline
+`NOTION_DATABASE_ID` is the 32-character ID in the database URL:
+`https://notion.so/workspace/**{DATABASE_ID}**?v=...`
+
+## Deploy to Vercel
+
+1. Import the repo in [vercel.com](https://vercel.com). Framework preset: **Vite**.
+2. Add the three env vars above.
+3. Deploy. The `/api` directory is auto-detected as serverless functions.
+
+For a custom domain: add it in Vercel → Project → Domains. SSL is automatic.
+
+## Important: ESM import extensions
+
+All relative imports inside `api/*.ts` **must** end with `.js` (not `.ts`). Node ESM requires explicit extensions at runtime. A test (`api/import-extensions.test.ts`) enforces this — it will fail CI if any offending import is added.
