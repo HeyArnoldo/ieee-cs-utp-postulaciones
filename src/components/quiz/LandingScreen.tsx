@@ -34,7 +34,7 @@ export function LandingScreen({ onStart }: Props) {
     <>
       <div className="chrome">
         <a className="brand" href="https://ieeecsutp.org">
-          <img className="lockup" src="/assets/logo-stacked-color.png" alt="IEEE CS UTP" />
+          <img className="lockup" src="/assets/logo-horizontal.svg" alt="IEEE CS UTP" />
           <span className="domain">ieeecsutp.org</span>
         </a>
         <div className="countdown">
