@@ -35,9 +35,9 @@ export function LandingScreen({ onStart }: Props) {
   return (
     <>
       <div className="chrome">
-        <a className="brand" href="https://ieeecsutp.org">
+        <a className="brand" href="/">
           <img className="lockup" src="/assets/logo-horizontal.svg" alt="IEEE CS UTP" />
-          <span className="domain">ieeecsutp.org</span>
+          <span className="domain">ieee-computer-society-utp.vercel.app</span>
         </a>
         <div className="countdown">
           Cierra en {timeLeft.days}d {timeLeft.hours}h {timeLeft.mins}m
