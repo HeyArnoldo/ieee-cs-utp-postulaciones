@@ -1,13 +1,13 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Client } from '@notionhq/client';
 import OpenAI from 'openai';
-import { QuizAnswersSchema } from '../src/lib/quiz/answers.schema';
-import { mapAnswersToNotionPage } from '../src/lib/notion/mapAnswers';
+import { QuizAnswersSchema } from '../src/lib/quiz/answers.schema.js';
+import { mapAnswersToNotionPage } from '../src/lib/notion/mapAnswers.js';
 import {
   buildEvaluationPrompt,
   parseEvaluationResponse,
   FALLBACK_EVALUATION,
-} from '../src/lib/ai/prompts';
+} from '../src/lib/ai/prompts.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
   if (req.method !== 'POST') {
