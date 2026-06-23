@@ -6,7 +6,6 @@ type ResultProps = {
   email: string;
   whatsapp: string;
   code: string;
-  score: number;
   mensaje?: string;
   comiteSugerido?: string;
 };
@@ -16,7 +15,6 @@ type Props = {
 };
 
 const CONFETTI_COLORS = ['#FFA300', '#00B5E2', '#FFFFFF', '#FFB733'];
-const CIRCUMFERENCE = 377; // 2 * Math.PI * 60 ≈ 376.99
 
 function TypewriterText({ text, speed = 30 }: { text: string; speed?: number }) {
   const [displayed, setDisplayed] = useState('');
@@ -40,8 +38,6 @@ function TypewriterText({ text, speed = 30 }: { text: string; speed?: number }) 
 
 export function ResultScreen({ result }: Props) {
   const confettiRef = useRef<HTMLDivElement>(null);
-  const [displayScore, setDisplayScore] = useState(0);
-  const [strokeDashoffset, setStrokeDashoffset] = useState(CIRCUMFERENCE);
 
   useEffect(() => {
     const container = confettiRef.current;
@@ -57,51 +53,14 @@ export function ResultScreen({ result }: Props) {
     }
   }, []);
 
-  useEffect(() => {
-    // Short delay so CSS transition fires after mount
-    const timer = setTimeout(() => {
-      setStrokeDashoffset(CIRCUMFERENCE - (CIRCUMFERENCE * result.score / 100));
-    }, 100);
-
-    // Animate the number counter
-    const t0 = performance.now();
-    const duration = 1500;
-    const target = result.score;
-
-    function tick(now: number) {
-      const k = Math.min(1, (now - t0) / duration);
-      const eased = 1 - Math.pow(1 - k, 3);
-      setDisplayScore(Math.round(eased * target));
-      if (k < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-
-    return () => clearTimeout(timer);
-  }, [result.score]);
-
-  const applicantName = result.name.trim().split(' ')[0];
+  const firstName = result.name.trim().split(' ')[0];
 
   return (
     <>
       <div className="result-hero">
         <div className="confetti" ref={confettiRef}></div>
-        <span className="badge-success">
-          <span className="checky"></span>Match alto
-        </span>
-        <div className="score-ring">
-          <svg viewBox="0 0 140 140">
-            <circle className="track" cx="70" cy="70" r="60"/>
-            <circle
-              className="fill"
-              cx="70" cy="70" r="60"
-              style={{ strokeDashoffset }}
-            />
-          </svg>
-          <div className="num">
-            <span>{displayScore}</span><small>/100</small>
-          </div>
-        </div>
-        <h1>Tu perfil encaja con <strong>IEEE CS UTP</strong>.</h1>
+        <div className="badge-success checky">✓</div>
+        <h1>¡Listo, {firstName}! Recibimos tu postulación.</h1>
         <p className="lede">
           {result.mensaje ? <TypewriterText text={result.mensaje} /> : 'Analizando tu perfil...'}
         </p>
@@ -112,7 +71,7 @@ export function ResultScreen({ result }: Props) {
       </div>
 
       <div className="next-steps">
-        <h2>Qué sigue, <span>{applicantName || 'postulante'}</span>:</h2>
+        <h2>Qué sigue, <span>{firstName || 'postulante'}</span>:</h2>
         <div className="next-card">
           <div className="ico">1</div>
           <div>

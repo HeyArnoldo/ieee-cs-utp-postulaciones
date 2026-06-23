@@ -54,8 +54,9 @@ export function LandingScreen({ onStart }: Props) {
             <div className="v">{timeLeft.days}<small>días</small></div>
           </div>
           <div className="meta-card">
-            <div className="k">Postulantes activos</div>
-            <div className="v">30 <small>postulantes</small></div>
+            <div className="k">Cupos disponibles</div>
+            {/* TODO: cohort-size placeholder — confirm with chapter before each cycle */}
+            <div className="v">30 <small>cupos</small></div>
           </div>
         </div>
       </div>

@@ -14,7 +14,6 @@ type ResultData = {
   email: string;
   whatsapp: string;
   code: string;
-  score: number;
   mensaje?: string;
   comiteSugerido?: string;
 };
@@ -28,30 +27,35 @@ function App() {
   const [resultData, setResultData] = useState<ResultData | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [evaluationDone, setEvaluationDone] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(answers: QuizAnswers): Promise<void> {
     setSubmitError(null);
     setResultData(null);
     setEvaluationDone(false);
+    setSubmitting(true);
     setScreen('evaluating');
 
-    const result = await submitApplication(answers);
+    try {
+      const result = await submitApplication(answers);
 
-    if (!result.ok) {
-      setSubmitError(result.error);
-      setScreen('flow'); // return to form so user can retry
-      return;
+      if (!result.ok) {
+        setSubmitError('No pudimos enviar tu postulación. Revisa tu conexión e intenta de nuevo.');
+        setScreen('flow'); // return to form so user can retry
+        return;
+      }
+
+      setResultData({
+        name: answers.name,
+        email: answers.contact.email,
+        whatsapp: answers.contact.whatsapp,
+        code: generateCode(),
+        mensaje: result.mensaje,
+        comiteSugerido: result.comiteSugerido,
+      });
+    } finally {
+      setSubmitting(false);
     }
-
-    setResultData({
-      name: answers.name,
-      email: answers.contact.email,
-      whatsapp: answers.contact.whatsapp,
-      code: generateCode(),
-      score: 87, // TODO(M4): replace with real score
-      mensaje: result.mensaje,
-      comiteSugerido: result.comiteSugerido,
-    });
   }
 
   // Move to the result only once BOTH the evaluating animation has finished
@@ -73,7 +77,7 @@ function App() {
             {submitError}
           </div>
         )}
-        <QuizFlow onSubmit={handleSubmit} />
+        <QuizFlow onSubmit={handleSubmit} submitting={submitting} />
       </section>
       <section id="screen-evaluating" className={`screen${screen === 'evaluating' ? ' active' : ''}`}>
         {/* Mount ONLY while active — its timer must not fire on the landing screen. */}
