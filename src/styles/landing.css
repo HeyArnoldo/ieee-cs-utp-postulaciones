@@ -210,10 +210,10 @@
     .section { padding:40px 24px; }
     .section + .section { border-top:1px solid var(--ink-100); }
     .section h2 {
-      font-size:24px; line-height:1.15; margin-bottom:8px;
+      font-size:24px; line-height:1.15; margin-bottom:8px; text-align:center;
     }
     .section .lede {
-      font-size:15px; color:var(--ink-500); line-height:1.55; margin-bottom:24px;
+      font-size:15px; color:var(--ink-500); line-height:1.55; margin-bottom:24px; text-align:center;
     }
 
     .pillars { display:grid; gap:14px; }
