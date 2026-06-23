@@ -1,1 +1,28 @@
 @import "tailwindcss";
+
+@theme {
+  --color-orange: #FFA300;
+  --color-orange-700: #cc8200;
+  --color-orange-100: #fff1d6;
+  --color-blue-ieee: #00629B;
+  --color-blue-dark: #002855;
+  --color-blue-night: #001530;
+  --color-cyan: #00B5E2;
+  --color-cyan-soft: #C8F1FB;
+  --color-cyan-mist: #ECFAFD;
+  --color-ink-900: #0a0d10;
+  --color-ink-700: #1f242b;
+  --color-ink-500: #4a5058;
+  --color-ink-300: #b8bcc2;
+  --color-ink-200: #d8dbe0;
+  --color-ink-100: #eef0f3;
+  --color-ink-50: #f7f8fa;
+  --font-display: 'Montserrat', system-ui, sans-serif;
+  --font-body: 'Open Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+@keyframes confetti-fall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(60px) rotate(360deg); opacity: 0; }
+}
