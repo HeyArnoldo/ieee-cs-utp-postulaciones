@@ -29,6 +29,7 @@ async function getNotionMock() {
 
 const validBody = {
   name: 'Ana Pérez López',
+  applicantType: 'estudiante',
   career: 'sistemas',
   cycle: '4-6',
   interest: 'web',

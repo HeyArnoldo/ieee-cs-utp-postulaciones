@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { QuizAnswers } from '@/lib/quiz/schema'
+import { CAREER_LABELS } from '@/lib/notion/mapAnswers'
 
 const FALLBACK_QUESTION = '¿Qué proyecto o problema te gustaría resolver dentro del capítulo este año?'
 
@@ -17,6 +18,10 @@ export function DynamicQuestion({ answers, onAnswer }: DynamicQuestionProps) {
     let cancelled = false
     setLoading(true)
 
+    const careerLabel = answers.career === 'otra'
+      ? (answers.careerOther ?? '')
+      : (answers.career ? CAREER_LABELS[answers.career] : '')
+
     const fetchQuestion = async () => {
       try {
         const res = await fetch('/api/repregunta', {
@@ -26,6 +31,8 @@ export function DynamicQuestion({ answers, onAnswer }: DynamicQuestionProps) {
             motivation: answers.motivation ?? '',
             interest: answers.interest ?? '',
             career: answers.career ?? '',
+            applicantType: answers.applicantType ?? 'estudiante',
+            careerLabel,
           }),
         })
         const data = (await res.json()) as { ok: boolean; question?: string }
@@ -45,7 +52,7 @@ export function DynamicQuestion({ answers, onAnswer }: DynamicQuestionProps) {
     return () => {
       cancelled = true
     }
-  }, [answers.motivation, answers.interest, answers.career])
+  }, [answers.motivation, answers.interest, answers.career, answers.applicantType, answers.careerOther])
 
   if (loading) {
     return (

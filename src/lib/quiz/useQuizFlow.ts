@@ -13,13 +13,20 @@ type Action =
   | { type: 'NEXT' }
   | { type: 'BACK' };
 
+function getActiveQuestions(answers: Partial<QuizAnswers>) {
+  return QUESTIONS.filter((q) => q.showIf === undefined || q.showIf(answers));
+}
+
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case 'SET_ANSWER':
-      return { ...state, answers: { ...state.answers, ...action.payload } };
+    case 'SET_ANSWER': {
+      const newAnswers = { ...state.answers, ...action.payload };
+      return { ...state, answers: newAnswers };
+    }
     case 'NEXT': {
-      const canAdvance = QUESTIONS[state.step].validate(state.answers);
-      const isLast = state.step === QUESTIONS.length - 1;
+      const activeQuestions = getActiveQuestions(state.answers);
+      const canAdvance = activeQuestions[state.step].validate(state.answers);
+      const isLast = state.step === activeQuestions.length - 1;
       if (canAdvance && !isLast) {
         return { ...state, step: state.step + 1 };
       }
@@ -36,9 +43,10 @@ function reducer(state: State, action: Action): State {
 export function useQuizFlow() {
   const [state, dispatch] = useReducer(reducer, { step: 0, answers: {} });
 
-  const canAdvance = QUESTIONS[state.step].validate(state.answers);
-  const isLastStep = state.step === QUESTIONS.length - 1;
-  const progress = state.step / QUESTIONS.length;
+  const activeQuestions = getActiveQuestions(state.answers);
+  const canAdvance = activeQuestions[state.step].validate(state.answers);
+  const isLastStep = state.step === activeQuestions.length - 1;
+  const progress = state.step / activeQuestions.length;
 
   function setAnswer(partial: Partial<QuizAnswers>) {
     dispatch({ type: 'SET_ANSWER', payload: partial });
@@ -55,6 +63,7 @@ export function useQuizFlow() {
   return {
     step: state.step,
     answers: state.answers,
+    activeQuestions,
     setAnswer,
     next,
     back,

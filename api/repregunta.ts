@@ -9,10 +9,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ ok: false, error: 'Method not allowed' })
   }
 
-  const { motivation, interest, career } = (req.body ?? {}) as {
+  const { motivation, interest, career, applicantType, careerLabel } = (req.body ?? {}) as {
     motivation?: string
     interest?: string
     career?: string
+    applicantType?: string
+    careerLabel?: string
   }
 
   if (!motivation || !interest || !career) {
@@ -21,7 +23,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const openai = new OpenAI({ apiKey: process.env.OPENAI_TOKEN })
-    const messages = buildFollowUpPrompt({ motivation, interest, career })
+    const messages = buildFollowUpPrompt({
+      motivation,
+      interest,
+      career,
+      applicantType: (applicantType === 'docente' ? 'docente' : 'estudiante'),
+      careerLabel,
+    })
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages,
