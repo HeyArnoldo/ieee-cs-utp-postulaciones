@@ -77,7 +77,7 @@ function App() {
             {submitError}
           </div>
         )}
-        <QuizFlow onSubmit={handleSubmit} submitting={submitting} />
+        <QuizFlow onSubmit={handleSubmit} submitting={submitting} onExit={() => setScreen('landing')} />
       </section>
       <section id="screen-evaluating" className={`screen${screen === 'evaluating' ? ' active' : ''}`}>
         {/* Mount ONLY while active — its timer must not fire on the landing screen. */}

@@ -10,11 +10,20 @@ interface DynamicQuestionProps {
 }
 
 export function DynamicQuestion({ answers, onAnswer }: DynamicQuestionProps) {
-  const [question, setQuestion] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [currentValue, setCurrentValue] = useState('')
+  const [question, setQuestion] = useState<string | null>(answers.followUp?.question ?? null)
+  const [loading, setLoading] = useState(!answers.followUp?.question)
+  const [currentValue, setCurrentValue] = useState(answers.followUp?.answer ?? '')
 
   useEffect(() => {
+    // Reuse the stored question and skip the fetch entirely. This is deliberate
+    // even if upstream answers (motivation/career) changed after going back:
+    // navigating back must preserve the question and the typed answer, not
+    // regenerate a new prompt the user never saw.
+    if (answers.followUp?.question) {
+      setLoading(false)
+      return
+    }
+
     let cancelled = false
     setLoading(true)
 
@@ -52,7 +61,7 @@ export function DynamicQuestion({ answers, onAnswer }: DynamicQuestionProps) {
     return () => {
       cancelled = true
     }
-  }, [answers.motivation, answers.interest, answers.career, answers.applicantType, answers.careerOther])
+  }, [answers.motivation, answers.interest, answers.career, answers.applicantType, answers.careerOther, answers.followUp?.question])
 
   if (loading) {
     return (
