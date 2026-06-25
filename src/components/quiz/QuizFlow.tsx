@@ -12,9 +12,10 @@ import { CareerQuestion } from './CareerQuestion';
 type Props = {
   onSubmit: (answers: QuizAnswers) => Promise<void>;
   submitting?: boolean;
+  onExit: () => void;
 };
 
-export function QuizFlow({ onSubmit, submitting = false }: Props) {
+export function QuizFlow({ onSubmit, submitting = false, onExit }: Props) {
   const { step, answers, activeQuestions, setAnswer, next, back, canAdvance, isLastStep } = useQuizFlow();
   const question = activeQuestions[step];
   const isFirst = step === 0;
@@ -28,12 +29,20 @@ export function QuizFlow({ onSubmit, submitting = false }: Props) {
     }
   }
 
+  function handleBack() {
+    if (isFirst) {
+      onExit();
+    } else {
+      back();
+    }
+  }
+
   const currentValue = answers[question.id as keyof typeof answers];
 
   return (
     <>
       <div className="flow-header">
-        <button className="flow-back" onClick={back} disabled={isFirst}>
+        <button className="flow-back" onClick={handleBack}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M10 13 5 8l5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
@@ -92,7 +101,7 @@ export function QuizFlow({ onSubmit, submitting = false }: Props) {
           />
         )}
         <div className="qfoot">
-          <button className="btn btn-secondary" onClick={back} disabled={isFirst}>←</button>
+          <button className="btn btn-secondary" onClick={handleBack}>←</button>
           <button className="btn btn-primary" onClick={handleNext} disabled={!canAdvance || (isLastStep && submitting)}>
             {isLastStep && submitting ? 'Enviando…' : isLastStep ? 'Ver mi resultado' : 'Siguiente'}
             {!isLastStep && (
