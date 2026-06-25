@@ -5,6 +5,18 @@ type Props = {
   onStart: () => void;
 };
 
+export type ConvocatoriaMode = 'junta' | 'general'
+
+// 'junta' = board call, engineer-focused copy; switch to 'general' when opening to all committees/careers.
+const CONVOCATORIA_MODE: ConvocatoriaMode = 'junta'
+
+export function heroSubtitle(mode: ConvocatoriaMode): string {
+  if (mode === 'general') {
+    return 'El capítulo estudiantil de IEEE más activo del Perú busca personas apasionadas por la tecnología, el liderazgo y el impacto real — de ingeniería y de otras carreras que quieran aportar desde lo suyo.'
+  }
+  return 'El capítulo estudiantil de IEEE más activo del Perú busca ingenieros apasionados por la tecnología, el liderazgo y el impacto real.'
+}
+
 type TimeLeft = {
   days: number;
   hours: number;
@@ -48,7 +60,7 @@ export function LandingScreen({ onStart }: Props) {
         <div className="hero-text">
           <span className="eyebrow"><span className="dot"></span>Convocatoria 2026 · Abierta</span>
           <h1>IEEE CS UTP<br /><em>te quiere</em> en su equipo</h1>
-          <p className="sub">El capítulo estudiantil de IEEE más activo del Perú busca ingenieros apasionados por la tecnología, el liderazgo y el impacto real.</p>
+          <p className="sub">{heroSubtitle(CONVOCATORIA_MODE)}</p>
         </div>
         <div className="hero-meta">
           <div className="meta-card urgent">
