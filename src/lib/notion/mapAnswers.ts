@@ -1,5 +1,5 @@
 import type { CreatePageParameters } from '@notionhq/client/build/src/api-endpoints';
-import type { QuizAnswers, CareerValue, InterestValue, CycleValue, AvailabilityValue } from '@/lib/quiz/schema';
+import type { QuizAnswers, CareerValue, InterestValue, PapersValue, CycleValue, AvailabilityValue } from '@/lib/quiz/schema';
 
 // Human-readable labels for each career value
 export const CAREER_LABELS: Record<CareerValue, string> = {
@@ -11,6 +11,7 @@ export const CAREER_LABELS: Record<CareerValue, string> = {
   mecatronica: 'Ing. Mecatrónica',
   psicologia: 'Psicología',
   comunicaciones: 'Comunicaciones',
+  administracion: 'Administración de Empresas',
   otra: 'Otra',
 };
 
@@ -24,6 +25,7 @@ const CAREER_NOTION: Record<CareerValue, string> = {
   mecatronica: 'Ing. Mecatrónica',
   psicologia: 'Otra',
   comunicaciones: 'Otra',
+  administracion: 'Otra',
   otra: 'Otra',
 };
 
@@ -35,6 +37,20 @@ export const INTEREST_LABELS: Record<InterestValue, string> = {
   game: 'Videojuegos',
   iot: 'Internet de las Cosas (IoT)',
   explore: 'Explorando opciones',
+  design: 'UX / UI / Diseño de producto',
+  marketing: 'Marketing / Contenido / Redes',
+  ops: 'Organización y planificación',
+  people: 'Gestión de personas / Cultura',
+};
+
+export const PAPERS_LABELS: Record<PapersValue, string> = {
+  '0': '0 publicados',
+  '1': '1 publicado',
+  '2': '2 publicados',
+  '3': '3 publicados',
+  '4': '4 publicados',
+  '5+': '5 o más',
+  'pendiente': 'Culminado, sin publicar',
 };
 
 export const AVAILABILITY_LABELS: Record<AvailabilityValue, string> = {
@@ -57,9 +73,13 @@ const INTEREST_NOTION: Record<InterestValue, string[]> = {
   ai: ['IA'],
   cyber: ['Ciberseguridad'],
   game: ['Videojuegos'],
-  cloud: [],   // ambiguous — leave for M3 AI
-  iot: [],     // ambiguous — leave for M3 AI
-  explore: [], // ambiguous — leave for M3 AI
+  cloud: [],      // ambiguous — leave for M3 AI
+  iot: [],        // ambiguous — leave for M3 AI
+  explore: [],    // ambiguous — leave for M3 AI
+  design: [],     // cross-functional — leave for M3 AI
+  marketing: [],  // cross-functional — leave for M3 AI
+  ops: [],        // cross-functional — leave for M3 AI
+  people: [],     // cross-functional — leave for M3 AI
 };
 
 export function mapAnswersToNotionPage(
@@ -157,6 +177,22 @@ export function mapAnswersToNotionPage(
         ],
       },
     },
+    ...(isDocente && answers.papers !== undefined
+      ? [
+          {
+            object: 'block' as const,
+            type: 'paragraph' as const,
+            paragraph: {
+              rich_text: [
+                {
+                  type: 'text' as const,
+                  text: { content: `Papers publicados: ${PAPERS_LABELS[answers.papers]}` },
+                },
+              ],
+            },
+          },
+        ]
+      : []),
     ...(answers.followUp
       ? [
           {

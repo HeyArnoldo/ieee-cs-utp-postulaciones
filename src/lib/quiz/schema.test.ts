@@ -7,6 +7,7 @@ import {
   validateWhatsapp,
   validateContact,
 } from './schema';
+import type { InterestValue, CareerValue, PapersValue } from './schema';
 import { QuizAnswersSchema } from './answers.schema';
 
 describe('validateName', () => {
@@ -131,5 +132,73 @@ describe('QuizAnswersSchema', () => {
       const result = QuizAnswersSchema.safeParse({ ...baseEstudiante, career });
       expect(result.success).toBe(true);
     }
+  });
+
+  // Feature 2: administracion career
+  it('accepts career=administracion', () => {
+    const result = QuizAnswersSchema.safeParse({ ...baseEstudiante, career: 'administracion' });
+    expect(result.success).toBe(true);
+  });
+
+  // Feature 1: new interest values
+  it('accepts interest=design', () => {
+    const result = QuizAnswersSchema.safeParse({ ...baseEstudiante, interest: 'design' });
+    expect(result.success).toBe(true);
+  });
+  it('accepts interest=marketing', () => {
+    const result = QuizAnswersSchema.safeParse({ ...baseEstudiante, interest: 'marketing' });
+    expect(result.success).toBe(true);
+  });
+  it('accepts interest=ops', () => {
+    const result = QuizAnswersSchema.safeParse({ ...baseEstudiante, interest: 'ops' });
+    expect(result.success).toBe(true);
+  });
+  it('accepts interest=people', () => {
+    const result = QuizAnswersSchema.safeParse({ ...baseEstudiante, interest: 'people' });
+    expect(result.success).toBe(true);
+  });
+
+  // Feature 3: papers field
+  it('accepts docente with papers=0', () => {
+    const result = QuizAnswersSchema.safeParse({ ...baseDocente, papers: '0' });
+    expect(result.success).toBe(true);
+  });
+  it('accepts docente with papers=5+', () => {
+    const result = QuizAnswersSchema.safeParse({ ...baseDocente, papers: '5+' });
+    expect(result.success).toBe(true);
+  });
+  it('accepts docente with papers=pendiente', () => {
+    const result = QuizAnswersSchema.safeParse({ ...baseDocente, papers: 'pendiente' });
+    expect(result.success).toBe(true);
+  });
+  it('accepts studiante without papers (optional)', () => {
+    const result = QuizAnswersSchema.safeParse(baseEstudiante);
+    expect(result.success).toBe(true);
+  });
+  it('rejects papers with invalid value', () => {
+    const result = QuizAnswersSchema.safeParse({ ...baseDocente, papers: 'invalid' });
+    expect(result.success).toBe(false);
+  });
+});
+
+// Type-level checks — ensure exported types include new values
+describe('InterestValue type', () => {
+  it('new interest values are valid InterestValue', () => {
+    const values: InterestValue[] = ['web', 'ai', 'cyber', 'cloud', 'game', 'iot', 'explore', 'design', 'marketing', 'ops', 'people'];
+    expect(values.length).toBe(11);
+  });
+});
+
+describe('CareerValue type', () => {
+  it('administracion is a valid CareerValue', () => {
+    const v: CareerValue = 'administracion';
+    expect(v).toBe('administracion');
+  });
+});
+
+describe('PapersValue type', () => {
+  it('all papers values are valid', () => {
+    const values: PapersValue[] = ['0', '1', '2', '3', '4', '5+', 'pendiente'];
+    expect(values.length).toBe(7);
   });
 });
