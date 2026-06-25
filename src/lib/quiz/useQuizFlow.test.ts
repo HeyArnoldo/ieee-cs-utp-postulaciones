@@ -75,7 +75,7 @@ describe('useQuizFlow', () => {
     expect(result.current.isLastStep).toBe(true);
   });
 
-  it('DOCENTE path: cycle step is skipped — 8 active questions, isLastStep at step 7', () => {
+  it('DOCENTE path: cycle skipped, papers shown — 9 active questions, isLastStep at step 8', () => {
     const { result } = renderHook(() => useQuizFlow());
     // name
     act(() => result.current.setAnswer({ name: 'Carlos Ríos' }));
@@ -86,7 +86,10 @@ describe('useQuizFlow', () => {
     // career
     act(() => result.current.setAnswer({ career: 'sistemas' }));
     act(() => result.current.next());
-    // cycle is SKIPPED — next is interest
+    // cycle is SKIPPED — next is papers (docente-only)
+    act(() => result.current.setAnswer({ papers: '2' }));
+    act(() => result.current.next());
+    // interest
     act(() => result.current.setAnswer({ interest: 'ai' }));
     act(() => result.current.next());
     // motivation
@@ -98,11 +101,11 @@ describe('useQuizFlow', () => {
     // availability
     act(() => result.current.setAnswer({ availability: '5-8' }));
     act(() => result.current.next());
-    // now at contact (step 7), which is the last
-    expect(result.current.step).toBe(7);
+    // now at contact (step 8), which is the last
+    expect(result.current.step).toBe(8);
     expect(result.current.isLastStep).toBe(true);
     // Verify active question count
-    expect(result.current.activeQuestions.length).toBe(8);
+    expect(result.current.activeQuestions.length).toBe(9);
   });
 
   it('DOCENTE path: activeQuestions excludes cycle', () => {
@@ -117,6 +120,44 @@ describe('useQuizFlow', () => {
     act(() => result.current.setAnswer({ applicantType: 'estudiante' }));
     const ids = result.current.activeQuestions.map((q) => q.id);
     expect(ids).toContain('cycle');
+  });
+
+  // Feature 3: papers question
+  it('DOCENTE path: activeQuestions includes papers', () => {
+    const { result } = renderHook(() => useQuizFlow());
+    act(() => result.current.setAnswer({ applicantType: 'docente' }));
+    const ids = result.current.activeQuestions.map((q) => q.id);
+    expect(ids).toContain('papers');
+  });
+
+  it('ESTUDIANTE path: activeQuestions excludes papers', () => {
+    const { result } = renderHook(() => useQuizFlow());
+    act(() => result.current.setAnswer({ applicantType: 'estudiante' }));
+    const ids = result.current.activeQuestions.map((q) => q.id);
+    expect(ids).not.toContain('papers');
+  });
+
+  it('DOCENTE path: papers question validates — empty blocks advance', () => {
+    const { result } = renderHook(() => useQuizFlow());
+    act(() => result.current.setAnswer({ applicantType: 'docente' }));
+    // advance to papers step (name→applicantType→career→papers)
+    act(() => result.current.setAnswer({ name: 'Carlos Ríos' }));
+    act(() => result.current.next());
+    act(() => result.current.setAnswer({ applicantType: 'docente' }));
+    act(() => result.current.next());
+    act(() => result.current.setAnswer({ career: 'sistemas' }));
+    act(() => result.current.next());
+    // now at papers step
+    expect(result.current.canAdvance).toBe(false);
+    act(() => result.current.setAnswer({ papers: '3' }));
+    expect(result.current.canAdvance).toBe(true);
+  });
+
+  it('ESTUDIANTE with non-tech career: interest question is active (shown to all careers)', () => {
+    const { result } = renderHook(() => useQuizFlow());
+    act(() => result.current.setAnswer({ applicantType: 'estudiante', career: 'psicologia' }));
+    const ids = result.current.activeQuestions.map((q) => q.id);
+    expect(ids).toContain('interest');
   });
 
   it('career=otra blocks canAdvance until careerOther is non-empty', () => {

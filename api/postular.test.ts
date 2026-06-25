@@ -123,6 +123,56 @@ describe('POST /api/postular', () => {
     expect(jsonArg).toHaveProperty('error');
   });
 
+  describe('DOCENTE — papers flows through to AI prompt', () => {
+    it('passes papers to buildEvaluationPrompt when applicantType is docente', async () => {
+      const mockCreate = await getNotionMock();
+      mockCreate.mockResolvedValueOnce({ id: 'page-docente-papers' });
+
+      const { buildEvaluationPrompt } = await import('../src/lib/ai/prompts.js');
+      const buildPromptSpy = vi.spyOn({ buildEvaluationPrompt }, 'buildEvaluationPrompt');
+
+      mockOpenAICreate.mockResolvedValueOnce({
+        choices: [{
+          message: {
+            content: JSON.stringify({
+              mensaje: 'Bienvenido docente.',
+              comiteSugerido: 'Comité de Investigación',
+              lineaSugerida: ['IA'],
+              resumenRRHH: 'Tipo: Docente. Papers: 3.',
+            }),
+          },
+        }],
+      });
+
+      const docenteBody = {
+        name: 'Carlos Ríos Torres',
+        applicantType: 'docente',
+        career: 'sistemas',
+        papers: '3',
+        interest: 'ai',
+        motivation: 'Quiero contribuir a la formación de futuros ingenieros en el capítulo IEEE CS UTP.',
+        availability: '2-4',
+        contact: { email: 'carlos@gmail.com', whatsapp: '987654321' },
+      };
+
+      const req = makeReq('POST', docenteBody);
+      const res = makeRes();
+      await handler(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+
+      // The OpenAI call must have received a prompt that includes the papers value
+      expect(mockOpenAICreate).toHaveBeenCalledOnce();
+      const openaiCallArgs = mockOpenAICreate.mock.calls[0][0];
+      const userMessageContent = openaiCallArgs.messages.find(
+        (m: { role: string; content: string }) => m.role === 'user'
+      )?.content as string;
+      expect(userMessageContent).toContain('Papers publicados: 3');
+
+      buildPromptSpy.mockRestore();
+    });
+  });
+
   describe('AI enrichment — never blocks Notion save', () => {
     it('creates Notion page and returns 200 with fallback when OpenAI throws', async () => {
       const mockCreate = await getNotionMock();

@@ -150,6 +150,52 @@ describe('buildEvaluationPrompt', () => {
     })
     expect(msgs[1].content).toContain('Docente')
   })
+
+  // Feature 3: papers in evaluation prompt
+  it('docente with papers: user message includes papers info', () => {
+    const msgs = buildEvaluationPrompt({
+      name: 'Carlos Ríos',
+      motivation: 'Quiero aportar como mentor.',
+      interest: 'ai',
+      career: 'sistemas',
+      careerLabel: 'Ing. de Sistemas e Informática',
+      applicantType: 'docente',
+      availability: '2-4',
+      papers: '3',
+      followUp: { question: '¿Cómo mentorizarías?', answer: 'Con talleres prácticos.' },
+    })
+    expect(msgs[1].content).toContain('3')
+    expect(msgs[1].content.toLowerCase()).toMatch(/paper|publicaci/)
+  })
+
+  it('docente with papers=pendiente: user message includes human-readable label', () => {
+    const msgs = buildEvaluationPrompt({
+      name: 'Carlos Ríos',
+      motivation: 'Quiero aportar como mentor.',
+      interest: 'ai',
+      career: 'sistemas',
+      careerLabel: 'Ing. de Sistemas e Informática',
+      applicantType: 'docente',
+      availability: '2-4',
+      papers: 'pendiente',
+      followUp: { question: '¿Cómo mentorizarías?', answer: 'Con talleres prácticos.' },
+    })
+    expect(msgs[1].content).toContain('pendiente')
+  })
+
+  it('estudiante without papers: user message does NOT contain papers line', () => {
+    const msgs = buildEvaluationPrompt({
+      name: 'Ana García',
+      motivation: 'Quiero aprender.',
+      interest: 'web',
+      career: 'software',
+      careerLabel: 'Ing. de Software',
+      applicantType: 'estudiante',
+      availability: '5-8',
+      followUp: { question: '¿Qué proyecto?', answer: 'Una app web.' },
+    })
+    expect(msgs[1].content.toLowerCase()).not.toMatch(/papers publicados/)
+  })
 })
 
 describe('parseEvaluationResponse', () => {

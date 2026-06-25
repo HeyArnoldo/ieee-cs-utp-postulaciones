@@ -209,4 +209,79 @@ describe('mapAnswersToNotionPage', () => {
     const result = mapAnswersToNotionPage(baseEstudiante, DB_ID);
     expect(result.parent).toEqual({ database_id: DB_ID });
   });
+
+  // Feature 2: administracion career label
+  it('maps administracion → Otra in Notion SELECT', () => {
+    const result = mapAnswersToNotionPage({ ...baseEstudiante, career: 'administracion' }, DB_ID);
+    expect(result.properties!['Carrera']).toEqual({ select: { name: 'Otra' } });
+  });
+  it('administracion → body contains "Carrera declarada: Administración de Empresas"', () => {
+    const result = mapAnswersToNotionPage({ ...baseEstudiante, career: 'administracion' }, DB_ID);
+    const children = result.children as Array<{ paragraph?: { rich_text: Array<{ text: { content: string } }> } }>;
+    const block = children.find((b) => b.paragraph?.rich_text[0]?.text?.content === 'Carrera declarada: Administración de Empresas');
+    expect(block).toBeDefined();
+  });
+
+  // Feature 1: new interest labels in body
+  it('body includes interest label for design', () => {
+    const result = mapAnswersToNotionPage({ ...baseEstudiante, interest: 'design' }, DB_ID);
+    const children = result.children as Array<{ paragraph?: { rich_text: Array<{ text: { content: string } }> } }>;
+    const block = children.find((b) => b.paragraph?.rich_text[0]?.text?.content?.includes('UX'));
+    expect(block).toBeDefined();
+  });
+  it('body includes interest label for marketing', () => {
+    const result = mapAnswersToNotionPage({ ...baseEstudiante, interest: 'marketing' }, DB_ID);
+    const children = result.children as Array<{ paragraph?: { rich_text: Array<{ text: { content: string } }> } }>;
+    const block = children.find((b) => b.paragraph?.rich_text[0]?.text?.content?.includes('Marketing'));
+    expect(block).toBeDefined();
+  });
+  it('body includes interest label for ops', () => {
+    const result = mapAnswersToNotionPage({ ...baseEstudiante, interest: 'ops' }, DB_ID);
+    const children = result.children as Array<{ paragraph?: { rich_text: Array<{ text: { content: string } }> } }>;
+    const block = children.find((b) => b.paragraph?.rich_text[0]?.text?.content?.includes('Organización'));
+    expect(block).toBeDefined();
+  });
+  it('body includes interest label for people', () => {
+    const result = mapAnswersToNotionPage({ ...baseEstudiante, interest: 'people' }, DB_ID);
+    const children = result.children as Array<{ paragraph?: { rich_text: Array<{ text: { content: string } }> } }>;
+    const block = children.find((b) => b.paragraph?.rich_text[0]?.text?.content?.includes('Gestión de personas'));
+    expect(block).toBeDefined();
+  });
+  it('maps design → [] (empty multi_select, for AI to suggest)', () => {
+    const result = mapAnswersToNotionPage({ ...baseEstudiante, interest: 'design' }, DB_ID);
+    expect(result.properties!['Línea / Departamento']).toEqual({ multi_select: [] });
+  });
+
+  // Feature 3: papers mapping
+  it('docente with papers: body contains papers info', () => {
+    const result = mapAnswersToNotionPage({ ...baseDocente, papers: '3' }, DB_ID);
+    const children = result.children as Array<{ paragraph?: { rich_text: Array<{ text: { content: string } }> } }>;
+    const block = children.find((b) => b.paragraph?.rich_text[0]?.text?.content?.startsWith('Papers publicados:'));
+    expect(block).toBeDefined();
+  });
+  it('docente with papers=pendiente: body shows human-readable label', () => {
+    const result = mapAnswersToNotionPage({ ...baseDocente, papers: 'pendiente' }, DB_ID);
+    const children = result.children as Array<{ paragraph?: { rich_text: Array<{ text: { content: string } }> } }>;
+    const block = children.find((b) => b.paragraph?.rich_text[0]?.text?.content?.includes('Culminado, sin publicar'));
+    expect(block).toBeDefined();
+  });
+  it('estudiante without papers: body does NOT contain papers info', () => {
+    const result = mapAnswersToNotionPage(baseEstudiante, DB_ID);
+    const children = result.children as Array<{ paragraph?: { rich_text: Array<{ text: { content: string } }> } }>;
+    const block = children.find((b) => b.paragraph?.rich_text[0]?.text?.content?.startsWith('Papers publicados:'));
+    expect(block).toBeUndefined();
+  });
+
+  it('estudiante with stale papers value: body does NOT emit papers block', () => {
+    // A user who selected docente, answered papers, then switched to estudiante
+    // leaves a stale papers value. The mapper must NOT emit it for an estudiante.
+    const staleEstudiante: QuizAnswers = {
+      ...baseEstudiante,
+      papers: '2', // stale value that leaked from a prior docente selection
+    };
+    const result = mapAnswersToNotionPage(staleEstudiante, DB_ID);
+    const children = result.children as Array<{ paragraph?: { rich_text: Array<{ text: { content: string } }> } }>;
+    const block = children.find((b) => b.paragraph?.rich_text[0]?.text?.content?.startsWith('Papers publicados:'));
+    expect(block).toBeUndefined();
+  });
 });

@@ -56,6 +56,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
       careerLabel,
       applicantType: parsed.data.applicantType,
       availability: parsed.data.availability,
+      papers: parsed.data.papers,
       followUp: parsed.data.followUp ?? { question: '', answer: '' },
     });
     const completion = await openai.chat.completions.create({

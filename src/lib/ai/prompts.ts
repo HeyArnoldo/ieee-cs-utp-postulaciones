@@ -48,6 +48,7 @@ export interface EvaluationPromptInput {
   careerLabel: string
   availability: string
   applicantType: 'estudiante' | 'docente'
+  papers?: string
   followUp: { question: string; answer: string }
 }
 
@@ -122,7 +123,7 @@ Tipo: ${tipoLabel}
 Carrera: ${input.careerLabel}
 Interés: ${input.interest}
 Disponibilidad: ${input.availability}
-Motivación: "${input.motivation}"
+Motivación: "${input.motivation}"${isDocente && input.papers !== undefined ? `\nPapers publicados: ${input.papers}` : ''}
 Pregunta de seguimiento: "${input.followUp.question}"
 Respuesta: "${input.followUp.answer}"`,
     },
