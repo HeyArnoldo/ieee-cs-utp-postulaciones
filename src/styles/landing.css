@@ -84,6 +84,11 @@
     .chrome .countdown {
       font-family:var(--ff-mono); font-size:11px; color:var(--ink-500);
       display:flex; align-items:center; gap:6px;
+      /* A 30-day countdown is the longest this string ever gets — keep it on one line. */
+      white-space:nowrap; flex-shrink:0;
+    }
+    @media (max-width:420px) {
+      .chrome .countdown { font-size:10px; }
     }
     .chrome .countdown::before {
       content:""; width:7px; height:7px; border-radius:50%;
@@ -234,6 +239,44 @@
     .pillar p {
       font-size:14px; color:var(--ink-500); line-height:1.5;
     }
+
+    /* ===== Proof (eventos reales del capítulo) ===== */
+    .proof-grid { display:grid; gap:16px; }
+    .proof-card {
+      margin:0;
+      background:var(--white);
+      border:1px solid var(--ink-100);
+      border-radius:var(--r-md);
+      overflow:hidden;
+      box-shadow:var(--sh-sm);
+    }
+    .proof-media {
+      display:block; width:100%; height:auto;
+      aspect-ratio:4 / 3;
+      object-fit:cover; object-position:center;
+      background:var(--ink-100);
+    }
+    /* Posters carry text at the top and bottom edges — never crop them. */
+    .proof-card--poster .proof-media {
+      aspect-ratio:4 / 5;
+      object-fit:contain;
+      background:var(--blue-night);
+    }
+    .proof-card figcaption { padding:14px 16px 16px; }
+    .proof-tag {
+      display:block;
+      font-family:var(--ff-mono); font-size:11px; font-weight:500;
+      color:var(--orange-700); letter-spacing:.08em; text-transform:uppercase;
+      margin-bottom:6px;
+    }
+    .proof-card figcaption p {
+      font-size:14px; color:var(--ink-500); line-height:1.5;
+    }
+    .proof-close {
+      margin-top:22px; text-align:center;
+      font-size:16px; font-weight:600; line-height:1.5; color:var(--ink-900);
+    }
+    .proof-cta { display:flex; margin:18px auto 0; max-width:420px; }
 
     .timeline {
       position:relative; padding-left:28px;
@@ -666,6 +709,9 @@
       .pillars { grid-template-columns:repeat(3,1fr); gap:18px; }
       .pillar { padding:24px; }
       .pillar h3 { font-size:18px; }
+
+      .proof-grid { grid-template-columns:repeat(3,1fr); gap:18px; align-items:start; }
+      .proof-close { font-size:18px; margin-top:28px; }
 
       .flow-header { padding:24px 40px; }
       .flow-header .progress-shell, .flow-header .flow-back, .flow-header .ai-status { max-width:560px; margin-left:auto; margin-right:auto; }

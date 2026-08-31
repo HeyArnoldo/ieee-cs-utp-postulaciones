@@ -1,5 +1,6 @@
 // src/components/quiz/LandingScreen.tsx
 import { useEffect, useState } from 'react';
+import { ProofSection } from './ProofSection';
 
 type Props = {
   onStart: () => void;
@@ -23,9 +24,8 @@ type TimeLeft = {
   mins: number;
 };
 
-const DEADLINE = new Date('2026-08-23T23:59:59-05:00');
-// Cohort size shown across the landing — confirm against the real convocatoria.
-const COHORT_SIZE = 50;
+// Application window: opened 2026-08-31, closes 30 days later at Peru time (UTC-05:00, no DST).
+export const DEADLINE = new Date('2026-09-30T23:59:59-05:00');
 
 function getTimeLeft(): TimeLeft {
   const now = Date.now();
@@ -68,9 +68,8 @@ export function LandingScreen({ onStart }: Props) {
             <div className="v">{timeLeft.days}<small>días</small></div>
           </div>
           <div className="meta-card">
-            <div className="k">Cupos disponibles</div>
-            {/* TODO: cohort-size placeholder — confirm with chapter before each cycle */}
-            <div className="v">{COHORT_SIZE} <small>cupos</small></div>
+            <div className="k">Cupos · sin límite</div>
+            <div className="v">Abiertos</div>
           </div>
         </div>
       </div>
@@ -84,7 +83,7 @@ export function LandingScreen({ onStart }: Props) {
         </button>
         <div className="scarcity">
           <span className="live"></span>
-          <span>Cupos limitados · Solo {COHORT_SIZE} seleccionados</span>
+          <span>Convocatoria abierta · Todos los voluntarios</span>
         </div>
       </div>
 
@@ -109,6 +108,8 @@ export function LandingScreen({ onStart }: Props) {
           </div>
         </div>
       </div>
+
+      <ProofSection onStart={onStart} />
 
       <div className="section">
         <h2>Proceso de selección</h2>
@@ -138,7 +139,7 @@ export function LandingScreen({ onStart }: Props) {
         </button>
         <div className="scarcity">
           <span className="live"></span>
-          <span>Cupos limitados · Solo {COHORT_SIZE} seleccionados</span>
+          <span>Convocatoria abierta · Todos los voluntarios</span>
         </div>
       </div>
 
